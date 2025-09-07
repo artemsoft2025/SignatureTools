@@ -386,6 +386,7 @@ sighunter_config.json:
 
 ### Файл сигнатур (.sigs)
 custom_signatures.sigs:
+
 ```cmd
 # Формат: имя|сигнатура|описание
 trojan_win32|4D 5A 90 00 03 00 00 00|Троян для Windows
@@ -395,6 +396,7 @@ ransomware|E8 ........ FF 15 ........|Функция шифрования
 
 ### . Файл сигнатур (.json)
 signatures.json:
+
 ```cmd
 {
     "signatures": [
@@ -410,27 +412,34 @@ signatures.json:
 ### Другие примеры файлов сигнатур:
 
 1. signatures/trojans.sigs
- <br>
+ 
 ```cmd
 Трояны и похитители данных
 stealer_agent|4D 5A 90 00 03 00 00 00 04 00 00 00|Троян-стилер
 banking_trojan|68 00 30 00 00 6A 14 8D 91 00 23|Банковский троян
 keylogger_win|E8 ........ FF 15 ........ 50 68|Кейлоггер
 ```
+
 2. signatures/ransomware.sigs
-```cmd# Шифровальщики
+
+```cmd
+# Шифровальщики
 ransomware_locky|B8 37 00 00 00 0F 05 48 89 C7|Locky ransomware
 ransomware_ryuk|48 8B 05 D9 2A 00 00 48 85 C0|Ryuk ransomware
 crypto_malware|55 48 8B EC 48 83 EC 20 48 8B|Крипто-шифровальщик
 ```
+
 3. signatures/backdoors.sigs
+
 ```cmd
 # Бэкдоры
 backdoor_ssh|68 00 30 00 00 6A 14 8D 91 00 23|SSH бэкдор
 reverse_shell|48 89 E5 48 83 EC 20 48 8B 05|Reverse shell
 rat_remote|4D 5A 00 00 00 00 00 00 00 00 00|RAT троян
 ```
+
 4. signatures/rootkits.json
+
 ```cmd
 {
     "signatures": [
@@ -447,7 +456,9 @@ rat_remote|4D 5A 00 00 00 00 00 00 00 00 00|RAT троян
     ]
 }
 ```
+
 5. custom_signatures.sigs
+
 ```cmd
 # Пользовательские сигнатуры
 custom_malware|B7 02 00 48 8D 05 5B AF 02 00|Обнаруженный образец
