@@ -1,6 +1,6 @@
 # ArtemSoft SignatureTools
 
-Набор консольных утилит для работы с бинарными сигнатурами. Генерация сигнатур из файлов и поиск по этим сигнатурам в целях поиска троянов, вирусов и других зловредов.
+Набор консольных утилит для работы с бинарными сигнатурами. Генерация сигнатур из файлов и поиск по этим сигнатурам троянов, вирусов и других зловредов.
 
 ## Назначение
 Для автоматизированного снятия сигнатур со зловредных файлов (siggen.exe или sigmaker.exe) и последующий поиск зловредов по сигнатурам с помощью сканера (sighunter.exe).<br>
@@ -272,10 +272,6 @@ rule sig_rule {
 - Если планируется использовать в YARA-сканерах — добавляйте --yara.
 - Лучше указывать --name и --desc для наглядности.
 
-
-
-
-
 ##  SigHunter.exe - Поисковик по сигнатурам
 Назначение: Поиск файлов по бинарным сигнатурам
 
@@ -283,24 +279,199 @@ rule sig_rule {
 - Подробное логирование результатов
 - Звуковое оповещение о результатах
 
+Базовое использование:
+```cmd
+sighunter.exe C:\Windows\System32\ -s "68 00 30 00 00 6A 14"
+```
 
-## Быстрый старт
+Полный синтаксис:
+```cmd
+sighunter.exe <директория> [опции]
+```
+Можно указывать несколько директорий через пробел. <br>
 
-### Установка
-1. Распакуйте архив в любую папку
-2. Запускайте утилиты из командной строки
+### Параметры:
+| Параметр          | Описание                     | Пример            |
+| ----------------- | ---------------------------- | ----------------- |
+| директория              | Где искать           | C:\Windows\System32\       |
+| -s, --signature      | HEX-сигнатура для поиска      | -s "68 00 30 00 00"             |
+| -f, --signature-file      | Файл с сигнатурами          | -f my_signatures.sigs             |
+| -c, --config        | Файл конфигурации             | -c my_config.json     |
+| --all-files | Искать во всех файлах      | --all-files |
+| --executables-only      | для тех случаев, когда нужно сканировать только исполняемые файлы | sighunter.exe c:\ --executables-only  |
+| --list-signatures    | Показать сигнатуры     | --list-signatures    |
+| --debug                | Режим отладки            | 
+| --sound | Включить звуковое оповещение |
+
+Параметр `--sound` будет воспроизводить звук после завершения работы утилиты. 1 сигнал, если по сигнатурам ничего не найдено. И 3 сигнала, если найдены объекты.
 
 ### Примеры использования
 
-**Генерация сигнатур:**
-
 ```cmd
-siggen.exe suspect_file.exe -l 64 -n 3 -o my_signatures.sigs
+# Быстрая проверка только исполняемых файлов
+ sighunter.exe c:\ --executables-only
+
+# Полная проверка ВСЕХ файлов (для глубокого анализа)
+ sighunter.exe c:\ --all-files
+
+# Использование настроек из конфига
+ sighunter.exe c:\
+
+# Проверка только документов и скриптов (через кастомный конфиг)
+ sighunter.exe c:\ --config my_config.json
+
+# Поиск по одной сигнатуре:
+sighunter.exe C:\Windows\System32\ -s "4D5A900003000000"
+
+# Поиск по файлу сигнатур:
+sighunter.exe C:\Windows\System32\ -f trojans.sigs --sound
+
+# Поиск во всех файлах:
+sighunter.exe C:\Temp\ --all-files -s "E8A1B200A074F2"
+
+# Показать загруженные сигнатуры:
+sighunter.exe C:\Windows\System32\ --list-signatures
+
+# С кастомным конфигом:
+sighunter.exe D:\Apps\ -c config.json -f signatures.sigs
+
+# Сканирование нескольких директорий
+
+sighunter.exe C:\Windows “C:\Program Files” -f threats.sigs --debug
 ```
 
+Форматы сигнатур (поддерживаются):
+```cmd
+•HEX с пробелами: "68 00 30 00 00 6A 14"
+•HEX без пробелов: "68003000006A14"
+•YARA-формат: "{68 00 30 00 00 6A 14}"
+```
 
+### Конфигурационный файл (.json)
+sighunter_config.json:
+```cmd
+{
+    "scan_extensions": [".exe", ".dll", ".sys", ".com", ".scr"],
+    "scan_extensions_only": true,
+    "max_file_size_mb": 100,
+    "signature_files": ["custom_signatures.sigs"],
+    "default_signature_format": "hex"
+}
+```
+Вариант с несколькими фалами с сигнатурами:
+```cmd
+{
+    "scan_extensions": [".exe", ".dll", ".sys", ".com", ".scr", ".ocx", ".cpl", ".drv", ".efi"],
+    "scan_extensions_only": true,
+    "max_file_size_mb": 300,
+    "signature_files": [
+        "signatures/trojans.sigs",
+        "signatures/ransomware.sigs", 
+        "signatures/backdoors.sigs",
+        "signatures/rootkits.json",
+        "custom_signatures.sigs"
+    ],
+    "default_signature_format": "hex"
+}
+```
+ Еще пример конфигурации:
+```cmd
+{
+    "default_signature_format": "yara",
+    "scan_extensions": [".exe", ".dll", ".sys"],
+    "max_file_size_mb": 100,
+    "signature_files": ["custom_signatures.sigs"]
+}
+```
 
+### Файл сигнатур (.sigs)
+custom_signatures.sigs:
+```cmd
+# Формат: имя|сигнатура|описание
+trojan_win32|4D 5A 90 00 03 00 00 00|Троян для Windows
+backdoor_ssh|68 00 30 00 00 6A 14 8D 91|Backdoor с SSH
+ransomware|E8 ........ FF 15 ........|Функция шифрования
+```
 
-ыаваавыыа
-ыва
-пропр
+### . Файл сигнатур (.json)
+signatures.json:
+```cmd
+{
+    "signatures": [
+        {
+            "name": "trojan_win32",
+            "signature": "4D 5A 90 00 03 00 00 00",
+            "description": "Троян для Windows"
+        }
+    ]
+}
+```
+
+### Другие примеры файлов сигнатур:
+
+1. signatures/trojans.sigs
+ <br>
+```cmd
+Трояны и похитители данных
+stealer_agent|4D 5A 90 00 03 00 00 00 04 00 00 00|Троян-стилер
+banking_trojan|68 00 30 00 00 6A 14 8D 91 00 23|Банковский троян
+keylogger_win|E8 ........ FF 15 ........ 50 68|Кейлоггер
+```
+2. signatures/ransomware.sigs
+```cmd# Шифровальщики
+ransomware_locky|B8 37 00 00 00 0F 05 48 89 C7|Locky ransomware
+ransomware_ryuk|48 8B 05 D9 2A 00 00 48 85 C0|Ryuk ransomware
+crypto_malware|55 48 8B EC 48 83 EC 20 48 8B|Крипто-шифровальщик
+```
+3. signatures/backdoors.sigs
+```cmd
+# Бэкдоры
+backdoor_ssh|68 00 30 00 00 6A 14 8D 91 00 23|SSH бэкдор
+reverse_shell|48 89 E5 48 83 EC 20 48 8B 05|Reverse shell
+rat_remote|4D 5A 00 00 00 00 00 00 00 00 00|RAT троян
+```
+4. signatures/rootkits.json
+```cmd
+{
+    "signatures": [
+        {
+            "name": "rootkit_hidden",
+            "signature": "48 89 C7 48 89 E6 48 89 D1 48 89 C2",
+            "description": "Руткит скрытия процессов"
+        },
+        {
+            "name": "kernel_driver",
+            "signature": "4D 5A 90 00 03 00 00 00 04 00 00 00 FF", 
+            "description": "Драйвер ядра"
+        }
+    ]
+}
+```
+5. custom_signatures.sigs
+```cmd
+# Пользовательские сигнатуры
+custom_malware|B7 02 00 48 8D 05 5B AF 02 00|Обнаруженный образец
+suspicious_file|48 89 05 E2 B7 02 00 48 8D 05|Подозрительный файл
+```
+
+Как это работает:
+1. При запуске утилита загружает ВСЕ сигнатуры из всех указанных файлов
+2. Объединяет их в один общий список
+3. Ищет каждую сигнатуру в каждом файле
+Как работают сигнатуры
+1.	Очистка: Удаляются все не-HEX символы ([^0-9A-Fa-f])
+2.	Преобразование: HEX → байты (требуются четные пары)
+3.	Поиск: Точное соответствие в файле
+
+Логирование <br>
+Логи создаются в папке logs/ с детальной информацией о процессе сканирования.
+
+Производительность
+- Быстрый поиск - один проход по файлу для всех сигнатур
+- Кэширование - предварительная компиляция сигнатур
+- Пропуск ошибок - продолжение работы при проблемах
+
+### Связь
+
+Для связи:
+artemsoft@yahoo.com  | https://t.me/avhelpnew 
