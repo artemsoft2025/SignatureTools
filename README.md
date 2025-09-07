@@ -116,6 +116,8 @@ sighunter.exe c:\
 | --min-quality     | Минимальное качество (0-100) | --min-quality 70  |
 | --show-quality    | Показать оценку качества     | --show-quality    |
 | -o                | Сохранение в файл            | siggen.exe malware2.exe  <br> -o custom_signatures.sigs |
+| --append          | Добавить результаты  <br>в существующий файл | siggen.exe malware2.exe -o  <br> custom_signatures.sigs --append |
+| --fast-mode       | Быстрый анализ (500KB)       | siggen.exe malware.exe  <br>--fast-mode |
 
 ## SigMaker.exe - Генератор сигнатур (тоже)
 Назначение: Создание уникальных сигнатур из бинарных файлов
