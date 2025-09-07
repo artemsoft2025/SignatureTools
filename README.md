@@ -25,9 +25,8 @@ siggen.exe malware.exe
 ```
 
 ![001](img/001.png)
-![Alt текст](/img/001.png)
-![Image alt](https://github.com/artemsoft2025/SignatureTools/raw/master/img/001.png)
 
+Допустим, будет найдено 6 качественных сигнатур, а на экран будет выведено 3 (по-умолчанию). 
 
 
 ## Быстрый старт
